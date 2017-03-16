@@ -113,7 +113,7 @@ class MCBoard(IntermediateDevice):
             self.set_property('analog_out_channels', ', '.join(analog_out_attrs), location='device_properties')
         if len(digital_out_table): # Table must be non empty
             grp.create_dataset('DIGITAL_OUTS',compression=config.compression,data=digital_out_table)
-            self.set_property('digital_lines', '/'.join((self.MAX_name,'port0','line0:%d'%(self.n_digitals-1))), location='device_properties')
+            self.set_property('digital_lines', '/'.join((self.name,'port0','line0:%d'%(self.n_digitals-1))), location='device_properties')
         if len(acquisition_table): # Table must be non empty
             grp.create_dataset('ACQUISITIONS',compression=config.compression,data=acquisition_table)
             self.set_property('analog_in_channels', ', '.join(input_attrs), location='device_properties')
