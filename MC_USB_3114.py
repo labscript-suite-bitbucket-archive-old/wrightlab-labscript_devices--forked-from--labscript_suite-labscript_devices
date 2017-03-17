@@ -13,7 +13,7 @@
 
 import time
 
-from labscript import LabscriptError, AnalogOut
+from labscript import LabscriptError, AnalogOut, DigitalOut
 from labscript_devices import labscript_device, BLACS_tab, BLACS_worker, runviewer_parser
 import labscript_devices.MCBoard as parent
 
@@ -159,6 +159,10 @@ class MCUSB3114Worker(Worker):
         scaled_ao_data = self.fromVolts(self.ao_data)
         for i in range(self.num_AO): 
             UL.cbAOut(self.BoardNum, i, 0, scaled_ao_data[i] ) # set AO channels to their initial defaults
+    
+    def shutdown(self):
+        # self.MC_Process.terminate()
+        pass
 
     def program_manual(self,front_panel_values):
         self.ao_data = [ front_panel_values['ao%d'%i] for i in range(self.num_AO)]
