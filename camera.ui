@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>909</width>
-    <height>667</height>
+    <height>846</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,7 +80,11 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="host_lineEdit"/>
+            <widget class="QLineEdit" name="host_lineEdit">
+             <property name="text">
+              <string>localhost</string>
+             </property>
+            </widget>
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="label_4">
@@ -92,7 +96,7 @@
            <item row="1" column="1">
             <widget class="QLabel" name="port_label">
              <property name="text">
-              <string/>
+              <string>42518</string>
              </property>
             </widget>
            </item>
@@ -100,6 +104,9 @@
             <widget class="QCheckBox" name="use_zmq_checkBox">
              <property name="text">
               <string>Use ZMQ</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
