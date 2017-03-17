@@ -46,13 +46,19 @@ class MC_USB_3114(parent.MCBoard):
         for child in self.child_devices:
             if isinstance(child,AnalogOut):
                 analog_count += 1    
+        
+        # count the number of digital outputs in use
+        digital_count = 0
+        for child in self.child_devices:
+            if isinstance(child,DigitalOut):
+                digital_count += 1
              
 from blacs.tab_base_classes import Worker, define_state
 from blacs.tab_base_classes import MODE_MANUAL, MODE_TRANSITION_TO_BUFFERED, MODE_TRANSITION_TO_MANUAL, MODE_BUFFERED  
 from blacs.device_base_class import DeviceTab
 
-do_data0 = int('10101010',2)
-do_data1 = int('01010101',2)
+do_data0 = int('10101010', 2)
+do_data1 = int('01010101', 2)
 dummy_do_data = [do_data0, do_data1] * 5
 ao_data0 = [0] * 16
 ao_data1 = [32768] * 16
@@ -90,7 +96,7 @@ class MC_USB_3114Tab(DeviceTab):
         # Create the output objects    
         self.create_analog_outputs(ao_prop)        
         # Create widgets for analog outputs only
-        dds_widgets,ao_widgets,do_widgets = self.auto_create_widgets()
+        dds_widgets, ao_widgets, do_widgets = self.auto_create_widgets()
         
         # now create the digital output objects
         self.create_digital_outputs(do_prop)        
@@ -126,8 +132,8 @@ class MC_USB_3114Tab(DeviceTab):
 @BLACS_worker
 class MCUSB3114Worker(Worker):
     def init(self):
-        exec 'import UniversalLibrary as UL' in globals()
-        global pylab; import pylab
+        exec 'from UniversalLibrary import UniversalLibrary as UL' in globals()
+        exec 'from UniversalLibrary import constants as ULC' in globals()
         global h5py; import labscript_utils.h5_lock, h5py
         global numpy; import numpy
         
@@ -139,12 +145,12 @@ class MCUSB3114Worker(Worker):
         # TODO: set these values all to zero after initial code debugging is done
         self.ao_data = dummy_ao_data[0]
         self.do_data = dummy_do_data[0]
-        self.time_data = dummy_time_data
+        self.time_data = dummy_time_data # do we need this? 
         
-        # Configure digital ports as outputs
+        # Configure digital port for output
         UL.cbDConfigPort(0, ULC.AUXPORT, ULC.DIGITALOUT)
 	
-        # Write data to the outputs
+        # Write initial data values to the outputs
         self.setup_static_channels()    
 
     def setup_static_channels(self):
@@ -172,7 +178,7 @@ class MCUSB3114Worker(Worker):
             if h5_data:
                 self.buffered_using_analog = True
                 ao_channels = device_properties['analog_out_channels']
-                ao_data = pylab.array(h5_data,dtype=np.float64)[:-1,:]
+                ao_data = numpy.array(h5_data,dtype=np.float64)[:-1,:]
             else:
                 self.buffered_using_analog = False   
                 
@@ -180,7 +186,7 @@ class MCUSB3114Worker(Worker):
             if h5_data:
                 self.buffered_using_digital = True
                 do_channels = device_properties['digital_lines']
-                do_bitfield = numpy.array(h5_data,dtype=numpy.uint32)
+                do_bitfield = numpy.array(h5_data,dtype=numpy.uint8)
             else:
                 self.buffered_using_digital = False            
             
@@ -212,8 +218,7 @@ class MCUSB3114Worker(Worker):
         return int(UL.cbFromEngUnits(self.BoardNum, self.RANGE, volt_value, dummyref)  )
             
     def transition_to_manual(self,abort=False):
-        # if aborting, don't call StopTask since this throws an
-        # error if the task hasn't actually finished!
+        # Note: might need to think about ho wo handle things if the worker AO process hasn't finished / is hung.
         self.setup_static_channels()
         if abort:
             # Reprogram the initial states:
@@ -231,5 +236,5 @@ class MCUSB3114Worker(Worker):
              
 @runviewer_parser
 class RunviewerClass(parent.RunviewerClass):
-    num_digitals = 0
+    num_digitals = 8
     
